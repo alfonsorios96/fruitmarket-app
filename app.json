@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "fruitmarket-app",
+    "slug": "fruitmarket-app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
