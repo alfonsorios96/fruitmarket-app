@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import {View, StyleSheet, Button} from 'react-native';
+
+import {HOST} from '@env';
+
 import TableComponent from '../components/TableComponent';
 
 export default class HomeView extends Component {
@@ -16,11 +19,12 @@ export default class HomeView extends Component {
 
     async componentDidMount() {
         try {
-            const response = await fetch('http://localhost:3004/fruit/stock');
+            const response = await fetch(`${HOST}/fruit/stock`);
             const payload = await response.json();
             this.setState({stores: [...payload.data]});
         } catch (e) {
             console.log(e);
+            Alert.alert('ERROR', JSON.stringify(e));
         }
     }
 

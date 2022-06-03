@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
-import {View, Text, Button, StyleSheet, Modal, Pressable, TextInput} from 'react-native';
+import {View, Text, Button, StyleSheet, Modal, Pressable, TextInput, Alert} from 'react-native';
 import {Collapse, CollapseHeader, CollapseBody} from 'accordion-collapse-react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import * as SecureStore from 'expo-secure-store';
+
+import {HOST} from '@env';
 
 export default class TableComponent extends Component {
     constructor(props) {
@@ -11,8 +14,9 @@ export default class TableComponent extends Component {
             storeSelected: {},
             fruitSelected: {},
             modalVisible: false,
+            storeTo: '',
             stores: [],
-            quantity: 0
+            quantity: '0'
         };
     }
 
@@ -27,6 +31,32 @@ export default class TableComponent extends Component {
 
     setModalVisible = (visible) => {
         this.setState({modalVisible: visible});
+    }
+
+    async onTransfer() {
+        const {fruitSelected: fruit, storeSelected: store, quantity, storeTo} = this.state;
+        this.setModalVisible(false);
+        const token = await SecureStore.getItemAsync('secure_token');
+        try {
+            const response = await fetch(`${HOST}/fruit/transfer/${fruit._id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    quantity: Number(quantity),
+                    from: store._id,
+                    to: storeTo,
+                })
+            });
+            const {data} = await response.json();
+            if (data) {
+                Alert.alert('Success', data.message);
+            }
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     render() {
@@ -47,14 +77,22 @@ export default class TableComponent extends Component {
                                 <Text>From store {this.state.storeSelected.name}</Text>
                                 <Text> ===> </Text>
                                 <RNPickerSelect
-                                    onValueChange={(value) => console.log(value)}
-                                    items={this.state.stores.filter(store => store._id !== this.state.storeSelected._id).map(store => ({label: store.name, value: store._id}))}
+                                    onValueChange={(store) => this.setState({storeTo: store})}
+                                    items={this.state.stores.filter(store => store._id !== this.state.storeSelected._id).map(store => ({
+                                        label: store.name,
+                                        value: store._id
+                                    }))}
                                 />
                                 <TextInput
                                     value={this.state.quantity}
                                     onChangeText={(quantity) => this.setState({quantity})}
                                     placeholder={'Quantity'}
                                     style={styles.input}
+                                />
+                                <Button
+                                    title={'Confirm transfer'}
+                                    style={styles.input}
+                                    onPress={this.onTransfer.bind(this)}
                                 />
                             </View>
 

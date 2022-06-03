@@ -43,7 +43,7 @@ export default class LoginView extends Component {
 
     onLogin() {
         const {username, password} = this.state;
-        fetch('http://localhost:3004/login', {
+        fetch(`${HOST}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

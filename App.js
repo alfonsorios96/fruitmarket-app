@@ -32,12 +32,12 @@ export default class App extends Component {
                 this.setState({page: 'home'});
             })
             .catch(error => {
-                Alert.alert('ERROR', `${JSON.stringify(error)}`);
+                Alert.alert('ERROR', JSON.stringify(error));
             });
     }
 
     loginError(error) {
-        Alert.alert('Error', `${JSON.stringify(error)}`);
+        Alert.alert('Error', JSON.stringify(error));
     }
 
     async logout() {
