@@ -1,27 +1,23 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Button} from 'react-native';
-
-import {HOST} from '@env';
+import {View, StyleSheet, Button, Alert} from 'react-native';
 
 import TableComponent from '../components/TableComponent';
+import {setStores} from '../actions/stores';
 
 export default class HomeView extends Component {
 
     constructor(props) {
         super(props);
-
         this.logout = props.logout;
-
-        this.state = {
-            stores: []
-        };
     }
 
     async componentDidMount() {
+        const {store} = this.props;
+
         try {
-            const response = await fetch(`${HOST}/fruit/stock`);
+            const response = await fetch(`http://localhost:3004/fruit/stock`);
             const payload = await response.json();
-            this.setState({stores: [...payload.data]});
+            store.dispatch(setStores(payload.data));
         } catch (e) {
             console.log(e);
             Alert.alert('ERROR', JSON.stringify(e));
@@ -29,6 +25,7 @@ export default class HomeView extends Component {
     }
 
     render() {
+
         return (
             <View style={styles.container}>
                 <Button
@@ -36,8 +33,7 @@ export default class HomeView extends Component {
                     style={styles.input}
                     onPress={this.logout.bind(this)}
                 />
-                <TableComponent
-                    stores={this.state.stores}>
+                <TableComponent store={this.props.store}>
                 </TableComponent>
             </View>
         );
@@ -47,7 +43,8 @@ export default class HomeView extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center'
     }
 });

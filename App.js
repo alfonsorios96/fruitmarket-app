@@ -1,8 +1,13 @@
 import React, {Component} from 'react';
 import {Alert, StyleSheet, SafeAreaView, ScrollView} from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
 import LoginView from './views/LoginView';
 import HomeView from './views/HomeView';
-import * as SecureStore from 'expo-secure-store';
+
+import reducers from './configureStore';
+import {createStore} from 'redux';
+const store = createStore(reducers);
 
 export default class App extends Component {
     constructor(props) {
@@ -16,11 +21,11 @@ export default class App extends Component {
     async componentDidMount() {
         try {
             const token = await SecureStore.getItemAsync('secure_token');
-            if(token) {
+            if (token) {
                 this.setState({page: 'home'});
             }
         } catch (e) {
-            if(e) {
+            if (e) {
                 Alert.alert('ERROR', `${JSON.stringify(e)}`);
             }
         }
@@ -56,8 +61,8 @@ export default class App extends Component {
                         ></LoginView>
                     )}
                     {this.state.page === 'home' && (
-                        <HomeView
-                            logout={this.logout.bind(this)}>
+                        <HomeView store={store}
+                                  logout={this.logout.bind(this)}>
                         </HomeView>
                     )}
                 </ScrollView>

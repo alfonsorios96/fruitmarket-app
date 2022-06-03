@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {View, Text, Button, StyleSheet, Modal, Pressable, TextInput, Alert} from 'react-native';
+import {View, Text, Button, StyleSheet, Modal, TextInput, Alert} from 'react-native';
 import {Collapse, CollapseHeader, CollapseBody} from 'accordion-collapse-react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import * as SecureStore from 'expo-secure-store';
 
-import {HOST} from '@env';
+// import {HOST} from '@env';
+import {transferFruit} from "../actions/stores";
 
 export default class TableComponent extends Component {
     constructor(props) {
@@ -14,14 +15,15 @@ export default class TableComponent extends Component {
             storeSelected: {},
             fruitSelected: {},
             modalVisible: false,
-            storeTo: '',
+            storeFrom: '',
             stores: [],
             quantity: '0'
         };
     }
 
     componentDidMount() {
-        this.setState({stores: [...this.props.stores]});
+        const {store} = this.props;
+        this.setState({stores: [...store.getState().stores]});
     }
 
     onShowTransferModal(store, fruit) {
@@ -34,11 +36,12 @@ export default class TableComponent extends Component {
     }
 
     async onTransfer() {
-        const {fruitSelected: fruit, storeSelected: store, quantity, storeTo} = this.state;
+        const {store} = this.props;
+        const {fruitSelected: fruit, storeSelected, quantity, storeTo} = this.state;
         this.setModalVisible(false);
         const token = await SecureStore.getItemAsync('secure_token');
         try {
-            const response = await fetch(`${HOST}/fruit/transfer/${fruit._id}`, {
+            const response = await fetch(`http://localhost:3004/fruit/transfer/${fruit._id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,12 +49,14 @@ export default class TableComponent extends Component {
                 },
                 body: JSON.stringify({
                     quantity: Number(quantity),
-                    from: store._id,
+                    from: storeSelected._id,
                     to: storeTo,
                 })
             });
             const {data} = await response.json();
             if (data) {
+                store.dispatch(transferFruit(storeSelected._id, storeTo, fruit._id, Number(quantity)));
+                this.setState({stores: [...store.getState().stores]});
                 Alert.alert('Success', data.message);
             }
         } catch (e) {
@@ -95,13 +100,6 @@ export default class TableComponent extends Component {
                                     onPress={this.onTransfer.bind(this)}
                                 />
                             </View>
-
-                            <Pressable
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => this.setModalVisible(!this.state.modalVisible)}
-                            >
-                                <Text style={styles.textStyle}>Hide Modal</Text>
-                            </Pressable>
                         </View>
                     </View>
                 </Modal>
