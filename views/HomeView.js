@@ -9,6 +9,7 @@ export default class HomeView extends Component {
     constructor(props) {
         super(props);
         this.logout = props.logout;
+        this.isLogged = props.isLogged;
     }
 
     async componentDidMount() {
@@ -25,16 +26,16 @@ export default class HomeView extends Component {
     }
 
     render() {
-
         return (
             <View style={styles.container}>
+                <TableComponent store={this.props.store} isLogged={this.isLogged}>
+                </TableComponent>
+
                 <Button
-                    title={'Logout'}
+                    title={this.isLogged ? 'Logout' : 'Login'}
                     style={styles.input}
                     onPress={this.logout.bind(this)}
                 />
-                <TableComponent store={this.props.store}>
-                </TableComponent>
             </View>
         );
     }
@@ -45,6 +46,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 50,
     }
 });

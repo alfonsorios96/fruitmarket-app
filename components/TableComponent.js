@@ -65,6 +65,8 @@ export default class TableComponent extends Component {
     }
 
     render() {
+        const {isLogged} = this.props;
+
         return (
             <View>
                 <Modal
@@ -106,22 +108,25 @@ export default class TableComponent extends Component {
                 {
                     this.state.stores.map((store, i) => {
                         return (
-                            <Collapse key={`collapse-item-${i}`}>
+                            <Collapse key={`collapse-item-${i}`} style={styles.container}>
                                 <CollapseHeader>
                                     <View>
-                                        <Text>{store.name}</Text>
+                                        <Text style={styles.titleText}>{store.name} -
+                                            Fruits {store.fruits.reduce((sum, fruit) => sum + fruit.stock, 0)}</Text>
                                     </View>
                                 </CollapseHeader>
                                 <CollapseBody>
                                     {store.fruits.map((fruit, fi) => {
                                         return (
-                                            <View key={`fruit-row-${fi}`}>
+                                            <View key={`fruit-row-${fi}`} style={styles.box}>
                                                 <Text>{fruit.name} {`${fruit.stock}`}</Text>
-                                                <Button
-                                                    title={'Transfer'}
-                                                    style={styles.input}
-                                                    onPress={this.onShowTransferModal.bind(this, store, fruit)}
-                                                />
+                                                {isLogged && (
+                                                    <Button
+                                                        title={'Transfer'}
+                                                        style={styles.input}
+                                                        onPress={this.onShowTransferModal.bind(this, store, fruit)}
+                                                    />
+                                                )}
                                             </View>
                                         );
                                     })}
@@ -141,6 +146,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginTop: 22
+    },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 22,
     },
     modalView: {
         margin: 20,
@@ -176,5 +187,20 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
+    },
+    titleText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    box: {
+        borderRadius: 10,
+        width: 250,
+        height: 50,
+        flex: 2,
+        justifyContent: "between",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: 'black',
     }
 });
